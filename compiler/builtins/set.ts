@@ -3,43 +3,43 @@ import type {} from './porffor.d.ts';
 // dark wasm magic for dealing with memory, sorry.
 export const __Porffor_set_read = (set: Set, index: number): any => {
   Porffor.wasm`
-local offset i32
-local.get ${index}
-i32.to_u
-i32.const 9
-i32.mul
-local.get ${set}
-i32.to_u
-i32.add
-local.set offset
+  local offset i32
+  local.get ${index}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  local.get ${set}
+  i32.to_u
+  i32.add
+  local.set offset
 
-local.get offset
-f64.load 0 4
+  local.get offset
+  f64.load 0 4
 
-local.get offset
-i32.load8_u 0 12
-return`;
+  local.get offset
+  i32.load8_u 0 12
+  return`;
 };
 
 export const __Porffor_set_write = (set: Set, index: number, value: any): boolean => {
   Porffor.wasm`
-local offset i32
-local.get ${index}
-i32.to_u
-i32.const 9
-i32.mul
-local.get ${set}
-i32.to_u
-i32.add
-local.set offset
+  local offset i32
+  local.get ${index}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  local.get ${set}
+  i32.to_u
+  i32.add
+  local.set offset
 
-local.get offset
-local.get ${value}
-f64.store 0 4
+  local.get offset
+  local.get ${value}
+  f64.store 0 4
 
-local.get offset
-local.get ${value+1}
-i32.store8 0 12`;
+  local.get offset
+  local.get ${value+1}
+  i32.store8 0 12`;
 
   return true;
 };

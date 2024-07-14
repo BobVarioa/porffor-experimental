@@ -79,37 +79,38 @@ export const __Reflect_ownKeys = (target: any) => {
     let i: i32 = 0;
     for (; ptr < endPtr; ptr += 14) {
       let key: any;
-      Porffor.wasm`local raw i32
-local msb i32
-local.get ${ptr}
-i32.to_u
-i32.load 0 0
-local.set raw
+      Porffor.wasm`
+      local raw i32
+      local msb i32
+      local.get ${ptr}
+      i32.to_u
+      i32.load 0 0
+      local.set raw
 
-local.get raw
-i32.const 30
-i32.shr_u
-local.tee msb
-if 127
-  i32.const 5 ;; symbol
-  i32.const 67 ;; string
-  local.get msb
-  i32.const 3
-  i32.eq
-  select
-  local.set ${key+1}
+      local.get raw
+      i32.const 30
+      i32.shr_u
+      local.tee msb
+      if 127
+        i32.const 5 ;; symbol
+        i32.const 67 ;; string
+        local.get msb
+        i32.const 3
+        i32.eq
+        select
+        local.set ${key+1}
 
-  local.get raw
-  i32.const 1073741823
-  i32.and ;; unset 2 MSBs
-else
-  i32.const 195
-  local.set ${key+1}
+        local.get raw
+        i32.const 1073741823
+        i32.and ;; unset 2 MSBs
+      else
+        i32.const 195
+        local.set ${key+1}
 
-  local.get raw
-end
-i32.from_u
-local.set ${key}`;
+        local.get raw
+      end
+      i32.from_u
+      local.set ${key}`;
 
       out[i++] = key;
     }

@@ -60,31 +60,31 @@ export const __Array_prototype_unshift = (_this: any[], ...items: any[]) => {
 
   // use memory.copy to move existing elements right
   Porffor.wasm`;; ptr = ptr(_this) + 4
-local #splice_ptr i32
-local.get ${_this}
-i32.to_u
-i32.const 4
-i32.add
-local.set #splice_ptr
+  local #splice_ptr i32
+  local.get ${_this}
+  i32.to_u
+  i32.const 4
+  i32.add
+  local.set #splice_ptr
 
-;; dst = ptr + itemsLen * 9
-local.get #splice_ptr
-local.get ${itemsLen}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
+  ;; dst = ptr + itemsLen * 9
+  local.get #splice_ptr
+  local.get ${itemsLen}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
 
-;; src = ptr
-local.get #splice_ptr
+  ;; src = ptr
+  local.get #splice_ptr
 
-;; size = len * 9
-local.get ${len}
-i32.to_u
-i32.const 9
-i32.mul
+  ;; size = len * 9
+  local.get ${len}
+  i32.to_u
+  i32.const 9
+  i32.mul
 
-memory.copy 0 0`;
+  memory.copy 0 0`;
 
   // write to now empty elements
   for (let i: i32 = 0; i < itemsLen; i++) {
@@ -173,47 +173,47 @@ export const __Array_prototype_splice = (_this: any[], _start: any, _deleteCount
 
   // remove deleted values via memory.copy shifting values in mem
   Porffor.wasm`;; ptr = ptr(_this) + 4 + (start * 9)
-local #splice_ptr i32
-local.get ${_this}
-i32.to_u
-i32.const 4
-i32.add
-local.get ${start}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
-local.set #splice_ptr
+  local #splice_ptr i32
+  local.get ${_this}
+  i32.to_u
+  i32.const 4
+  i32.add
+  local.get ${start}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
+  local.set #splice_ptr
 
-;; dst = ptr + itemsLen * 9
-local.get #splice_ptr
-local.get ${itemsLen}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
+  ;; dst = ptr + itemsLen * 9
+  local.get #splice_ptr
+  local.get ${itemsLen}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
 
-;; src = ptr + deleteCount * 9
-local.get #splice_ptr
-local.get ${deleteCount}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
+  ;; src = ptr + deleteCount * 9
+  local.get #splice_ptr
+  local.get ${deleteCount}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
 
-;; size = (len - start - deleteCount) * 9
-local.get ${len}
-i32.to_u
-local.get ${start}
-i32.to_u
-local.get ${deleteCount}
-i32.to_u
-i32.sub
-i32.sub
-i32.const 9
-i32.mul
+  ;; size = (len - start - deleteCount) * 9
+  local.get ${len}
+  i32.to_u
+  local.get ${start}
+  i32.to_u
+  local.get ${deleteCount}
+  i32.to_u
+  i32.sub
+  i32.sub
+  i32.const 9
+  i32.mul
 
-memory.copy 0 0`;
+  memory.copy 0 0`;
 
   if (itemsLen > 0) {
     let itemsPtr: i32 = Porffor.wasm`local.get ${items}`;
@@ -722,47 +722,47 @@ export const __Array_prototype_toSpliced = (_this: any[], _start: any, _deleteCo
 
   // remove deleted values via memory.copy shifting values in mem
   Porffor.wasm`;; ptr = ptr(_this) + 4 + (start * 9)
-local #splice_ptr i32
-local.get ${out}
-i32.to_u
-i32.const 4
-i32.add
-local.get ${start}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
-local.set #splice_ptr
+  local #splice_ptr i32
+  local.get ${out}
+  i32.to_u
+  i32.const 4
+  i32.add
+  local.get ${start}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
+  local.set #splice_ptr
 
-;; dst = ptr + itemsLen * 9
-local.get #splice_ptr
-local.get ${itemsLen}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
+  ;; dst = ptr + itemsLen * 9
+  local.get #splice_ptr
+  local.get ${itemsLen}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
 
-;; src = ptr + deleteCount * 9
-local.get #splice_ptr
-local.get ${deleteCount}
-i32.to_u
-i32.const 9
-i32.mul
-i32.add
+  ;; src = ptr + deleteCount * 9
+  local.get #splice_ptr
+  local.get ${deleteCount}
+  i32.to_u
+  i32.const 9
+  i32.mul
+  i32.add
 
-;; size = (len - start - deleteCount) * 9
-local.get ${len}
-i32.to_u
-local.get ${start}
-i32.to_u
-local.get ${deleteCount}
-i32.to_u
-i32.sub
-i32.sub
-i32.const 9
-i32.mul
+  ;; size = (len - start - deleteCount) * 9
+  local.get ${len}
+  i32.to_u
+  local.get ${start}
+  i32.to_u
+  local.get ${deleteCount}
+  i32.to_u
+  i32.sub
+  i32.sub
+  i32.const 9
+  i32.mul
 
-memory.copy 0 0`;
+  memory.copy 0 0`;
 
   if (itemsLen > 0) {
     let itemsPtr: i32 = Porffor.wasm`local.get ${items}`;

@@ -28,48 +28,48 @@ export const ArrayBuffer = function (length: any): ArrayBuffer {
 
 export const __ArrayBuffer_prototype_byteLength$get = (_this: ArrayBuffer) => {
   Porffor.wasm`
-local read i32
-local.get ${_this}
-i32.to_u
-i32.load 0 0
-local.tee read
-i32.const 0
-local.get read
-i32.const 0
-i32.ge_s
-select
-i32.from_u
-i32.const 1
-return`;
+  local read i32
+  local.get ${_this}
+  i32.to_u
+  i32.load 0 0
+  local.tee read
+  i32.const 0
+  local.get read
+  i32.const 0
+  i32.ge_s
+  select
+  i32.from_u
+  i32.const 1
+  return`;
 };
 
 export const __ArrayBuffer_prototype_maxByteLength$get = (_this: ArrayBuffer) => {
   Porffor.wasm`
-local read i32
-local.get ${_this}
-i32.to_u
-i32.load 0 0
-local.tee read
-i32.const 0
-local.get read
-i32.const 0
-i32.ge_s
-select
-i32.from_u
-i32.const 1
-return`;
+  local read i32
+  local.get ${_this}
+  i32.to_u
+  i32.load 0 0
+  local.tee read
+  i32.const 0
+  local.get read
+  i32.const 0
+  i32.ge_s
+  select
+  i32.from_u
+  i32.const 1
+  return`;
 };
 
 export const __ArrayBuffer_prototype_detached$get = (_this: ArrayBuffer) => {
   Porffor.wasm`
-local.get ${_this}
-i32.to_u
-i32.load 0 0
-i32.const 4294967295
-i32.eq
-i32.from_u
-i32.const 2
-return`;
+  local.get ${_this}
+  i32.to_u
+  i32.load 0 0
+  i32.const 4294967295
+  i32.eq
+  i32.from_u
+  i32.const 2
+  return`;
 };
 
 export const __ArrayBuffer_prototype_resizable$get = (_this: ArrayBuffer) => {
@@ -100,29 +100,29 @@ export const __ArrayBuffer_prototype_slice = (_this: ArrayBuffer, start: any, en
   Porffor.wasm.i32.store(out, end - start, 0, 0);
 
   Porffor.wasm`
-;; dst = out + 4
-local.get ${out}
-i32.to_u
-i32.const 4
-i32.add
+  ;; dst = out + 4
+  local.get ${out}
+  i32.to_u
+  i32.const 4
+  i32.add
 
-;; src = this + 4 + start
-local.get ${_this}
-i32.to_u
-i32.const 4
-i32.add
-local.get ${start}
-i32.to_u
-i32.add
+  ;; src = this + 4 + start
+  local.get ${_this}
+  i32.to_u
+  i32.const 4
+  i32.add
+  local.get ${start}
+  i32.to_u
+  i32.add
 
-;; size = end - start
-local.get ${end}
-i32.to_u
-local.get ${start}
-i32.to_u
-i32.sub
+  ;; size = end - start
+  local.get ${end}
+  i32.to_u
+  local.get ${start}
+  i32.to_u
+  i32.sub
 
-memory.copy 0 0`;
+  memory.copy 0 0`;
 
   return out;
 };
@@ -140,25 +140,25 @@ export const __ArrayBuffer_prototype_transfer = (_this: ArrayBuffer, newLength: 
 
   // copy data to it
   Porffor.wasm`
-;; dst = out + 4
-local.get ${out}
-i32.to_u
-i32.const 4
-i32.add
+  ;; dst = out + 4
+  local.get ${out}
+  i32.to_u
+  i32.const 4
+  i32.add
 
-;; src = this + 4
-local.get ${_this}
-i32.to_u
-i32.const 4
-i32.add
+  ;; src = this + 4
+  local.get ${_this}
+  i32.to_u
+  i32.const 4
+  i32.add
 
-;; size = min(newLength, len)
-local.get ${newLength}
-local.get ${len}
-f64.min
-i32.to_u
+  ;; size = min(newLength, len)
+  local.get ${newLength}
+  local.get ${len}
+  f64.min
+  i32.to_u
 
-memory.copy 0 0`;
+  memory.copy 0 0`;
 
   __Porffor_arraybuffer_detach(_this);
 
@@ -224,29 +224,29 @@ export const __SharedArrayBuffer_prototype_slice = (_this: SharedArrayBuffer, st
   Porffor.wasm.i32.store(out, end - start, 0, 0);
 
   Porffor.wasm`
-;; dst = out + 4
-local.get ${out}
-i32.to_u
-i32.const 4
-i32.add
+  ;; dst = out + 4
+  local.get ${out}
+  i32.to_u
+  i32.const 4
+  i32.add
 
-;; src = this + 4 + start
-local.get ${_this}
-i32.to_u
-i32.const 4
-i32.add
-local.get ${start}
-i32.to_u
-i32.add
+  ;; src = this + 4 + start
+  local.get ${_this}
+  i32.to_u
+  i32.const 4
+  i32.add
+  local.get ${start}
+  i32.to_u
+  i32.add
 
-;; size = end - start
-local.get ${end}
-i32.to_u
-local.get ${start}
-i32.to_u
-i32.sub
+  ;; size = end - start
+  local.get ${end}
+  i32.to_u
+  local.get ${start}
+  i32.to_u
+  i32.sub
 
-memory.copy 0 0`;
+  memory.copy 0 0`;
 
   return out;
 };

@@ -28,37 +28,38 @@ export const __Object_keys = (obj: any): any[] => {
       if (!Porffor.object.isEnumerable(ptr)) continue;
 
       let key: any;
-      Porffor.wasm`local raw i32
-local msb i32
-local.get ${ptr}
-i32.to_u
-i32.load 0 0
-local.set raw
+      Porffor.wasm`
+      local raw i32
+      local msb i32
+      local.get ${ptr}
+      i32.to_u
+      i32.load 0 0
+      local.set raw
 
-local.get raw
-i32.const 30
-i32.shr_u
-local.tee msb
-if 127
-  i32.const 5 ;; symbol
-  i32.const 67 ;; string
-  local.get msb
-  i32.const 3
-  i32.eq
-  select
-  local.set ${key+1}
+      local.get raw
+      i32.const 30
+      i32.shr_u
+      local.tee msb
+      if 127
+        i32.const 5 ;; symbol
+        i32.const 67 ;; string
+        local.get msb
+        i32.const 3
+        i32.eq
+        select
+        local.set ${key+1}
 
-  local.get raw
-  i32.const 1073741823
-  i32.and ;; unset 2 MSBs
-else
-  i32.const 195
-  local.set ${key+1}
+        local.get raw
+        i32.const 1073741823
+        i32.and ;; unset 2 MSBs
+      else
+        i32.const 195
+        local.set ${key+1}
 
-  local.get raw
-end
-i32.from_u
-local.set ${key}`;
+        local.get raw
+      end
+      i32.from_u
+      local.set ${key}`;
 
       out[i++] = key;
     }
@@ -95,17 +96,18 @@ export const __Object_values = (obj: any): any[] => {
       if (!Porffor.object.isEnumerable(ptr)) continue;
 
       let val: any;
-      Porffor.wasm`local ptr32 i32
-local.get ${ptr}
-i32.to_u
-local.tee ptr32
+      Porffor.wasm`
+      local ptr32 i32
+      local.get ${ptr}
+      i32.to_u
+      local.tee ptr32
 
-f64.load 0 4
-local.set ${val}
+      f64.load 0 4
+      local.set ${val}
 
-local.get ptr32
-i32.load8_u 0 13
-local.set ${val+1}`;
+      local.get ptr32
+      i32.load8_u 0 13
+      local.set ${val+1}`;
 
       out[i++] = val;
     }
@@ -382,11 +384,11 @@ export const __Object_getOwnPropertyDescriptor = (obj: any, prop: any): any => {
   // data descriptor
   const value: any = Porffor.wasm.f64.load(entryPtr, 0, 4);
   Porffor.wasm`
-local.get ${tail}
-i32.to_u
-i32.const 8
-i32.shr_u
-local.set ${value+1}`;
+  local.get ${tail}
+  i32.to_u
+  i32.const 8
+  i32.shr_u
+  local.set ${value+1}`;
 
   out.writable = !!(tail & 0b1000);
   out.value = value;
@@ -422,37 +424,38 @@ export const __Object_getOwnPropertyNames = (obj: any): any[] => {
     let i: i32 = 0;
     for (; ptr < endPtr; ptr += 14) {
       let key: any;
-      Porffor.wasm`local raw i32
-local msb i32
-local.get ${ptr}
-i32.to_u
-i32.load 0 0
-local.set raw
+      Porffor.wasm`
+      local raw i32
+      local msb i32
+      local.get ${ptr}
+      i32.to_u
+      i32.load 0 0
+      local.set raw
 
-local.get raw
-i32.const 30
-i32.shr_u
-local.tee msb
-if 127
-  i32.const 5 ;; symbol
-  i32.const 67 ;; string
-  local.get msb
-  i32.const 3
-  i32.eq
-  select
-  local.set ${key+1}
+      local.get raw
+      i32.const 30
+      i32.shr_u
+      local.tee msb
+      if 127
+        i32.const 5 ;; symbol
+        i32.const 67 ;; string
+        local.get msb
+        i32.const 3
+        i32.eq
+        select
+        local.set ${key+1}
 
-  local.get raw
-  i32.const 1073741823
-  i32.and ;; unset 2 MSBs
-else
-  i32.const 195
-  local.set ${key+1}
+        local.get raw
+        i32.const 1073741823
+        i32.and ;; unset 2 MSBs
+      else
+        i32.const 195
+        local.set ${key+1}
 
-  local.get raw
-end
-i32.from_u
-local.set ${key}`;
+        local.get raw
+      end
+      i32.from_u
+      local.set ${key}`;
 
       if (Porffor.rawType(key) == Porffor.TYPES.symbol) continue;
       out[i++] = key;
@@ -487,37 +490,38 @@ export const __Object_getOwnPropertySymbols = (obj: any): any[] => {
     let i: i32 = 0;
     for (; ptr < endPtr; ptr += 14) {
       let key: any;
-      Porffor.wasm`local raw i32
-local msb i32
-local.get ${ptr}
-i32.to_u
-i32.load 0 0
-local.set raw
+      Porffor.wasm`
+      local raw i32
+      local msb i32
+      local.get ${ptr}
+      i32.to_u
+      i32.load 0 0
+      local.set raw
 
-local.get raw
-i32.const 30
-i32.shr_u
-local.tee msb
-if 127
-  i32.const 5 ;; symbol
-  i32.const 67 ;; string
-  local.get msb
-  i32.const 3
-  i32.eq
-  select
-  local.set ${key+1}
+      local.get raw
+      i32.const 30
+      i32.shr_u
+      local.tee msb
+      if 127
+        i32.const 5 ;; symbol
+        i32.const 67 ;; string
+        local.get msb
+        i32.const 3
+        i32.eq
+        select
+        local.set ${key+1}
 
-  local.get raw
-  i32.const 1073741823
-  i32.and ;; unset 2 MSBs
-else
-  i32.const 195
-  local.set ${key+1}
+        local.get raw
+        i32.const 1073741823
+        i32.and ;; unset 2 MSBs
+      else
+        i32.const 195
+        local.set ${key+1}
 
-  local.get raw
-end
-i32.from_u
-local.set ${key}`;
+        local.get raw
+      end
+      i32.from_u
+      local.set ${key}`;
 
       if (Porffor.rawType(key) != Porffor.TYPES.symbol) continue;
       out[i++] = key;

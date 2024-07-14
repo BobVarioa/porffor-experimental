@@ -65,17 +65,17 @@ export const __Porffor_object_checkAllFlags = (obj: object, dataAnd: i32, access
 export const __Porffor_object_packAccessor = (get: any, set: any): f64 => {
   // pack i32s get & set into a single f64 (i64)
   Porffor.wasm`
-local.get ${set}
-i64.extend_i32_u
-i64.const 32
-i64.shl
-local.get ${get}
-i64.extend_i32_u
-i64.or
+  local.get ${set}
+  i64.extend_i32_u
+  i64.const 32
+  i64.shl
+  local.get ${get}
+  i64.extend_i32_u
+  i64.or
 
-f64.reinterpret_i64
-i32.const 1
-return`;
+  f64.reinterpret_i64
+  i32.const 1
+  return`;
 };
 
 export const __Porffor_object_accessorGet = (entryPtr: i32): Function => {
@@ -156,35 +156,35 @@ export const __Porffor_object_get = (obj: any, key: any): any => {
       const o: bytestring = __Porffor_funcLut_name(obj);
       const t: i32 = Porffor.TYPES.bytestring;
       Porffor.wasm`
-local.get ${o}
-f64.convert_i32_u
-local.get ${t}
-return`;
+      local.get ${o}
+      f64.convert_i32_u
+      local.get ${t}
+      return`;
     }
 
     tmp = 'length';
     if (key == tmp) {
       const o: i32 = __Porffor_funcLut_length(obj);
       Porffor.wasm`
-local.get ${o}
-f64.convert_i32_u
-i32.const 1
-return`;
+      local.get ${o}
+      f64.convert_i32_u
+      i32.const 1
+      return`;
     }
 
     // undefined
     Porffor.wasm`
-f64.const 0
-i32.const 128
-return`;
+    f64.const 0
+    i32.const 128
+    return`;
   }
 
   const entryPtr: i32 = __Porffor_object_lookup(obj, key);
   if (entryPtr == -1) {
     Porffor.wasm`
-f64.const 0
-i32.const 128
-return`;
+    f64.const 0
+    i32.const 128
+    return`;
   }
 
   const tail: i32 = Porffor.wasm.i32.load16_u(entryPtr, 0, 12);
@@ -196,39 +196,39 @@ return`;
     // no getter, return undefined
     if (Porffor.wasm`local.get ${get}` == 0) {
       Porffor.wasm`
-f64.const 0
-i32.const 128
-return`;
+      f64.const 0
+      i32.const 128
+      return`;
     }
 
     const funcFlags: i32 = __Porffor_funcLut_flags(get);
     if (funcFlags & 0b10) {
       // constructor func, add new.target, this args
       Porffor.wasm`
-f64.const 0
-i32.const 0
-local.get ${obj}
-f64.convert_i32_u
-local.get ${obj+1}
-local.get ${get}
-call_indirect 2 0
-return`;
+      f64.const 0
+      i32.const 0
+      local.get ${obj}
+      f64.convert_i32_u
+      local.get ${obj+1}
+      local.get ${get}
+      call_indirect 2 0
+      return`;
     } else {
       Porffor.wasm`
-local.get ${get}
-call_indirect 0 0
-return`;
+      local.get ${get}
+      call_indirect 0 0
+      return`;
     }
   }
 
   // data descriptor
   Porffor.wasm`
-local.get ${entryPtr}
-f64.load 0 4
-local.get ${tail}
-i32.const 8
-i32.shr_u
-return`;
+  local.get ${entryPtr}
+  f64.load 0 4
+  local.get ${tail}
+  i32.const 8
+  i32.shr_u
+  return`;
 };
 
 export const __Porffor_object_writeKey = (ptr: i32, key: any): void => {
@@ -285,21 +285,21 @@ export const __Porffor_object_set = (obj: object, key: any, value: any): any => 
       if (funcFlags & 0b10) {
         // constructor func, add new.target, this args
         Porffor.wasm`
-  f64.const 0
-  i32.const 0
-  local.get ${obj}
-  f64.convert_i32_u
-  i32.const 7
-  local.get ${value}
-  local.get ${value+1}
-  local.get ${set}
-  call_indirect 3 0`;
+        f64.const 0
+        i32.const 0
+        local.get ${obj}
+        f64.convert_i32_u
+        i32.const 7
+        local.get ${value}
+        local.get ${value+1}
+        local.get ${set}
+        call_indirect 3 0`;
       } else {
         Porffor.wasm`
-  local.get ${value}
-  local.get ${value+1}
-  local.get ${set}
-  call_indirect 1 0`;
+        local.get ${value}
+        local.get ${value+1}
+        local.get ${set}
+        call_indirect 1 0`;
       }
 
       return value;
@@ -363,17 +363,17 @@ export const __Porffor_object_define = (obj: object, key: any, value: any, flags
           } else {
             // if already non-writable, check value isn't being changed
             Porffor.wasm`
-local.get ${entryPtr}
-f64.load 0 4
-local.get ${value}
-f64.ne
+            local.get ${entryPtr}
+            f64.load 0 4
+            local.get ${value}
+            f64.ne
 
-local.get ${entryPtr}
-i32.load8_u 0 13
-local.get ${value+1}
-i32.ne
-i32.or
-local.set ${err}`;
+            local.get ${entryPtr}
+            i32.load8_u 0 13
+            local.get ${value+1}
+            i32.ne
+            i32.or
+            local.set ${err}`;
           }
         }
 
@@ -414,22 +414,22 @@ export const __Porffor_object_delete = (obj: object, key: any): boolean => {
   if (size > ind) {
     // offset all elements after by -1 ind
     Porffor.wasm`
-;; dst = entryPtr
-local.get ${entryPtr}
+    ;; dst = entryPtr
+    local.get ${entryPtr}
 
-;; src = entryPtr + 14 (+ 1 entry)
-local.get ${entryPtr}
-i32.const 14
-i32.add
+    ;; src = entryPtr + 14 (+ 1 entry)
+    local.get ${entryPtr}
+    i32.const 14
+    i32.add
 
-;; size = (size - ind) * 14
-local.get ${size}
-local.get ${ind}
-i32.sub
-i32.const 14
-i32.mul
+    ;; size = (size - ind) * 14
+    local.get ${size}
+    local.get ${ind}
+    i32.sub
+    i32.const 14
+    i32.mul
 
-memory.copy 0 0`;
+    memory.copy 0 0`;
   }
 
   return true;

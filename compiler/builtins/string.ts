@@ -1077,6 +1077,18 @@ export const __ByteString_prototype_trim = (_this: bytestring) => {
   return __ByteString_prototype_trimStart(__ByteString_prototype_trimEnd(_this));
 };
 
+export const __Porffor_bytestring_concat = (a: bytestring, b: bytestring) => {
+  const out: bytestring = Porffor.allocate();
+  const aLen: i32 = a.length;
+  const bLen: i32 = b.length;
+  out.length = aLen + bLen;
+
+
+}
+
+export const __Porffor_string_concat = (a: string|bytestring, b: string|bytestring) => {
+
+}
 
 export const __String_prototype_concat = (_this: string, ...vals: any[]) => {
   // todo/perf: rewrite to use memory.copy?
@@ -1087,24 +1099,24 @@ export const __String_prototype_concat = (_this: string, ...vals: any[]) => {
   for (let i: i32 = 0; i < valsLen; i++) {
     let x: any;
     Porffor.wasm`
-local.get ${vals}
-local.get ${i}
-i32.const 9
-i32.mul
-i32.add
-f64.load 0 4
+    local.get ${vals}
+    local.get ${i}
+    i32.const 9
+    i32.mul
+    i32.add
+    f64.load 0 4
 
-local.get ${vals}
-local.get ${i}
-i32.const 9
-i32.mul
-i32.add
-i32.load8_u 0 12
+    local.get ${vals}
+    local.get ${i}
+    i32.const 9
+    i32.mul
+    i32.add
+    i32.load8_u 0 12
 
-call __ecma262_ToString
-local.set ${x+1}
-i32.trunc_sat_f64_u
-local.set ${x}`;
+    call __ecma262_ToString
+    local.set ${x+1}
+    i32.trunc_sat_f64_u
+    local.set ${x}`;
 
     out += x;
   }
@@ -1121,24 +1133,24 @@ export const __ByteString_prototype_concat = (_this: bytestring, ...vals: any[])
   for (let i: i32 = 0; i < valsLen; i++) {
     let x: any;
     Porffor.wasm`
-local.get ${vals}
-local.get ${i}
-i32.const 9
-i32.mul
-i32.add
-f64.load 0 4
+    local.get ${vals}
+    local.get ${i}
+    i32.const 9
+    i32.mul
+    i32.add
+    f64.load 0 4
 
-local.get ${vals}
-local.get ${i}
-i32.const 9
-i32.mul
-i32.add
-i32.load8_u 0 12
+    local.get ${vals}
+    local.get ${i}
+    i32.const 9
+    i32.mul
+    i32.add
+    i32.load8_u 0 12
 
-call __ecma262_ToString
-local.set ${x+1}
-i32.trunc_sat_f64_u
-local.set ${x}`;
+    call __ecma262_ToString
+    local.set ${x+1}
+    i32.trunc_sat_f64_u
+    local.set ${x}`;
 
     out += x;
   }
@@ -1155,24 +1167,24 @@ export const __String_prototype_repeat = (_this: string, count: number) => {
   const thisLen: i32 = _this.length * 2;
   for (let i: i32 = 0; i < count; i++) {
     Porffor.wasm`
-;; dst = out + 4 + i * thisLen
-local.get ${out}
-i32.const 4
-i32.add
-local.get ${i}
-local.get ${thisLen}
-i32.mul
-i32.add
+    ;; dst = out + 4 + i * thisLen
+    local.get ${out}
+    i32.const 4
+    i32.add
+    local.get ${i}
+    local.get ${thisLen}
+    i32.mul
+    i32.add
 
-;; src = this + 4
-local.get ${_this}
-i32.const 4
-i32.add
+    ;; src = this + 4
+    local.get ${_this}
+    i32.const 4
+    i32.add
 
-;; size = thisLen
-local.get ${thisLen}
+    ;; size = thisLen
+    local.get ${thisLen}
 
-memory.copy 0 0`;
+    memory.copy 0 0`;
   }
 
   Porffor.wasm.i32.store(out, thisLen * count, 0, 0);
@@ -1188,24 +1200,24 @@ export const __ByteString_prototype_repeat = (_this: string, count: number) => {
   const thisLen: i32 = _this.length;
   for (let i: i32 = 0; i < count; i++) {
     Porffor.wasm`
-;; dst = out + 4 + i * thisLen
-local.get ${out}
-i32.const 4
-i32.add
-local.get ${i}
-local.get ${thisLen}
-i32.mul
-i32.add
+    ;; dst = out + 4 + i * thisLen
+    local.get ${out}
+    i32.const 4
+    i32.add
+    local.get ${i}
+    local.get ${thisLen}
+    i32.mul
+    i32.add
 
-;; src = this + 4
-local.get ${_this}
-i32.const 4
-i32.add
+    ;; src = this + 4
+    local.get ${_this}
+    i32.const 4
+    i32.add
 
-;; size = thisLen
-local.get ${thisLen}
+    ;; size = thisLen
+    local.get ${thisLen}
 
-memory.copy 0 0`;
+    memory.copy 0 0`;
   }
 
   Porffor.wasm.i32.store(out, thisLen * count, 0, 0);
@@ -1237,22 +1249,22 @@ export const __String_prototype_split = (_this: string, separator: any, limit: a
 
         tmp.length = tmpLen;
         Porffor.wasm`
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${tmp}
-f64.convert_i32_u
-f64.store 0 4
+        local.get ${out}
+        local.get ${outLen}
+        i32.const 9
+        i32.mul
+        i32.add
+        local.get ${tmp}
+        f64.convert_i32_u
+        f64.store 0 4
 
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${sType}
-i32.store8 0 12`;
+        local.get ${out}
+        local.get ${outLen}
+        i32.const 9
+        i32.mul
+        i32.add
+        local.get ${sType}
+        i32.store8 0 12`;
         outLen++;
 
         tmp = Porffor.allocate();
@@ -1277,22 +1289,22 @@ i32.store8 0 12`;
 
           tmp.length = tmpLen - (sepLen - 1);
           Porffor.wasm`
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${tmp}
-f64.convert_i32_u
-f64.store 0 4
+          local.get ${out}
+          local.get ${outLen}
+          i32.const 9
+          i32.mul
+          i32.add
+          local.get ${tmp}
+          f64.convert_i32_u
+          f64.store 0 4
 
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${sType}
-i32.store8 0 12`;
+          local.get ${out}
+          local.get ${outLen}
+          i32.const 9
+          i32.mul
+          i32.add
+          local.get ${sType}
+          i32.store8 0 12`;
           outLen++;
 
           tmp = Porffor.allocate();
@@ -1309,22 +1321,22 @@ i32.store8 0 12`;
   if (tmpLen > 0 && outLen < limit) {
     tmp.length = tmpLen;
     Porffor.wasm`
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${tmp}
-f64.convert_i32_u
-f64.store 0 4
+    local.get ${out}
+    local.get ${outLen}
+    i32.const 9
+    i32.mul
+    i32.add
+    local.get ${tmp}
+    f64.convert_i32_u
+    f64.store 0 4
 
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${sType}
-i32.store8 0 12`;
+    local.get ${out}
+    local.get ${outLen}
+    i32.const 9
+    i32.mul
+    i32.add
+    local.get ${sType}
+    i32.store8 0 12`;
     outLen++;
   }
 
@@ -1356,22 +1368,22 @@ export const __ByteString_prototype_split = (_this: bytestring, separator: any, 
 
         tmp.length = tmpLen;
         Porffor.wasm`
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${tmp}
-f64.convert_i32_u
-f64.store 0 4
+        local.get ${out}
+        local.get ${outLen}
+        i32.const 9
+        i32.mul
+        i32.add
+        local.get ${tmp}
+        f64.convert_i32_u
+        f64.store 0 4
 
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${bsType}
-i32.store8 0 12`;
+        local.get ${out}
+        local.get ${outLen}
+        i32.const 9
+        i32.mul
+        i32.add
+        local.get ${bsType}
+        i32.store8 0 12`;
         outLen++;
 
         tmp = Porffor.allocate();
@@ -1396,22 +1408,22 @@ i32.store8 0 12`;
 
           tmp.length = tmpLen - (sepLen - 1);
           Porffor.wasm`
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${tmp}
-f64.convert_i32_u
-f64.store 0 4
+          local.get ${out}
+          local.get ${outLen}
+          i32.const 9
+          i32.mul
+          i32.add
+          local.get ${tmp}
+          f64.convert_i32_u
+          f64.store 0 4
 
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${bsType}
-i32.store8 0 12`;
+          local.get ${out}
+          local.get ${outLen}
+          i32.const 9
+          i32.mul
+          i32.add
+          local.get ${bsType}
+          i32.store8 0 12`;
           outLen++;
 
           tmp = Porffor.allocate();
@@ -1428,22 +1440,22 @@ i32.store8 0 12`;
   if (tmpLen > 0 && outLen < limit) {
     tmp.length = tmpLen;
     Porffor.wasm`
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${tmp}
-f64.convert_i32_u
-f64.store 0 4
+    local.get ${out}
+    local.get ${outLen}
+    i32.const 9
+    i32.mul
+    i32.add
+    local.get ${tmp}
+    f64.convert_i32_u
+    f64.store 0 4
 
-local.get ${out}
-local.get ${outLen}
-i32.const 9
-i32.mul
-i32.add
-local.get ${bsType}
-i32.store8 0 12`;
+    local.get ${out}
+    local.get ${outLen}
+    i32.const 9
+    i32.mul
+    i32.add
+    local.get ${bsType}
+    i32.store8 0 12`;
     outLen++;
   }
 
