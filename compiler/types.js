@@ -74,6 +74,15 @@ registerInternalType('WeakMap');
 
 registerInternalType('Promise');
 
+registerInternalType('Error');
+registerInternalType('AggregateError');
+registerInternalType('TypeError');
+registerInternalType('ReferenceError');
+registerInternalType('SyntaxError');
+registerInternalType('RangeError');
+registerInternalType('EvalError');
+registerInternalType('URIError');
+
 if (Prefs.largestTypes) {
   const typeKeys = Object.keys(TYPES);
   const typeVals = Object.values(TYPES);

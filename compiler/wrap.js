@@ -300,6 +300,21 @@ ${flags & 0b0001 ? `    get func idx: ${get}
       return out;
     }
 
+    case TYPES.error:
+    case TYPES.aggregateerror:
+    case TYPES.typeerror:
+    case TYPES.referenceerror:
+    case TYPES.syntaxerror:
+    case TYPES.rangeerror:
+    case TYPES.evalerror:
+    case TYPES.urierror:{
+      const message = porfToJSValue({ memory, funcs, pages }, value, TYPES.bytestring);
+      const name = TYPE_NAMES[type];
+
+      // todo: stack is very incorrect right now
+      return new globalThis[name](message);
+    }
+
     default: return value;
   }
 };
@@ -459,9 +474,10 @@ export default (source, flags = [ 'module' ], customImports = {}, print = str =>
   const exports = {};
   const rawValues = Prefs.d;
 
-  const exceptTag = instance.exports['0'], memory = instance.exports['$'];
+  const exceptTag0 = instance.exports['0'], exceptTag1 = instance.exports['1'], memory = instance.exports['$'];
   for (const x in instance.exports) {
     if (x === '0') continue;
+    if (x === '1') continue;
     if (x === '$') {
       exports.$ = instance.exports.$;
       continue;
@@ -482,10 +498,10 @@ export default (source, flags = [ 'module' ], customImports = {}, print = str =>
 
         return porfToJSValue({ memory, funcs, pages }, ret[0], ret[1]);
       } catch (e) {
-        if (e.is && e.is(exceptTag)) {
-          const exceptionMode = Prefs.exceptionMode ?? 'lut';
+        if (e.is && (e.is(exceptTag0) || e.is(exceptTag1))) {
+          const exceptionMode = Prefs.exceptionMode ?? 'partial_lut';
           if (exceptionMode === 'lut') {
-            const exceptId = e.getArg(exceptTag, 0);
+            const exceptId = e.getArg(exceptTag0, 0);
             const exception = exceptions[exceptId];
 
             const constructorName = exception.constructor;
@@ -498,18 +514,18 @@ export default (source, flags = [ 'module' ], customImports = {}, print = str =>
           }
 
           if (exceptionMode === 'stack') {
-            const value = e.getArg(exceptTag, 0);
-            const type = e.getArg(exceptTag, 1);
+            const value = e.getArg(exceptTag0, 0);
+            const type = e.getArg(exceptTag0, 1);
 
             throw porfToJSValue({ memory, funcs, pages }, value, type);
           }
 
           if (exceptionMode === 'stackest') {
-            const constructorIdx = e.getArg(exceptTag, 0);
+            const constructorIdx = e.getArg(exceptTag0, 0);
             const constructorName = constructorIdx == -1 ? null : funcs.find(x => (x.index - importedFuncs.length) === constructorIdx)?.name;
 
-            const value = e.getArg(exceptTag, 1);
-            const type = e.getArg(exceptTag, 2);
+            const value = e.getArg(exceptTag0, 1);
+            const type = e.getArg(exceptTag0, 2);
             const message = porfToJSValue({ memory, funcs, pages }, value, type);
 
             // no constructor, just throw message
@@ -520,13 +536,13 @@ export default (source, flags = [ 'module' ], customImports = {}, print = str =>
           }
 
           if (exceptionMode === 'partial') {
-            const exceptId = e.getArg(exceptTag, 0);
+            const exceptId = e.getArg(exceptTag0, 0);
             const exception = exceptions[exceptId];
 
             const constructorName = exception.constructor;
 
-            const value = e.getArg(exceptTag, 1);
-            const type = e.getArg(exceptTag, 2);
+            const value = e.getArg(exceptTag0, 1);
+            const type = e.getArg(exceptTag0, 2);
             const message = porfToJSValue({ memory, funcs, pages }, value, type);
 
             // no constructor, just throw message
@@ -534,6 +550,32 @@ export default (source, flags = [ 'module' ], customImports = {}, print = str =>
 
             const constructor = globalThis[constructorName] ?? eval(`class ${constructorName} extends Error { constructor(message) { super(message); this.name = "${constructorName}"; } }; ${constructorName}`);
             throw new constructor(message);
+          }
+
+          if (exceptionMode === 'partial_lut') {
+            if (e.is(exceptTag0)) {
+              const exceptId = e.getArg(exceptTag0, 0);
+              const exception = exceptions[exceptId];
+
+              const constructorName = exception.constructor;
+
+              // no constructor, just throw message
+              if (!constructorName) throw exception.message;
+
+              const constructor = globalThis[constructorName] ?? eval(`class ${constructorName} extends Error { constructor(message) { super(message); this.name = "${constructorName}"; } }; ${constructorName}`);
+              throw new constructor(exception.message);
+            } else {
+              const value = e.getArg(exceptTag1, 0);
+              const type = e.getArg(exceptTag1, 1);
+
+              const err = porfToJSValue({ memory, funcs, pages }, value, type);;
+              if (typeof err === 'object' && typeof err.message === 'string' && typeof err.constructor === 'function') {
+                // likely an error
+                const name = err.constructor.name;
+                const constructor = globalThis[name] ?? eval(`class ${name} extends Error { constructor(message) { super(message); this.name = "${name}"; } }; ${name}`);
+                throw new constructor(err.message)
+              }
+            }
           }
         }
 
