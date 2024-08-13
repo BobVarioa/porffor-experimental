@@ -112,6 +112,12 @@ export default function({ builtinFuncs }, Prefs) {
           continue;
         }
 
+        if (typeof d.value === 'string' && x === 'constructor') {
+          this[k] = (scope, { funcRef }) => funcRef(d.value);
+          this[k].type = TYPES.function;
+          continue;
+        }
+
         if (typeof d.value === 'string') {
           this[k] = (scope, { makeString }) => makeString(scope, d.value, false, k);
           this[k].type = TYPES.bytestring;
@@ -192,6 +198,12 @@ export default function({ builtinFuncs }, Prefs) {
     return acc;
   }, new Set())) {
     const props = autoFuncs(x);
+    props.constructor = {
+      writable: true,
+      enumerable: false,
+      configurable: true,
+      value: x.slice(2, -10)
+    };
 
     // special case: Object.prototype.__proto__ = null
     if (x === '__Object_prototype') Object.defineProperty(props, '__proto__', { value: { value: null }, enumerable: true });

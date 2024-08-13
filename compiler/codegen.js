@@ -953,6 +953,10 @@ const asmFuncToAsm = (scope, func) => {
       }
 
       const func = funcByName(name);
+      // hack: handle internalConstrs
+      if (func == null) {
+        return number(1);
+      }
       return funcRef(func);
     },
     glbl: (opcode, name, type) => {
