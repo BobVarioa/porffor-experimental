@@ -1112,5 +1112,35 @@ export const BuiltinFuncs = function() {
     table: true
   };
 
+  this.__Porffor_errorLut_getConstr = {
+    params: [ Valtype.i32 ],
+    returns: [ Valtype.i32 ],
+    returnType: TYPES.boolean,
+    wasm: (scope, { allocPage }) => [
+      // note: technically only allows for 256 constrs, but when would that *ever* be a problem, if it does become one, just change this method
+      [ Opcodes.local_get, 0 ],
+      ...number(128, Valtype.i32),
+      [ Opcodes.i32_mul ],
+      [ Opcodes.i32_load, 0, ...unsignedLEB128(allocPage(scope, 'error lut')) ]
+    ],
+    table: true
+  };
+
+  this.__Porffor_errorLut_getMessage = {
+    params: [ Valtype.i32 ],
+    returns: [ Valtype.i32 ],
+    returnType: TYPES.boolean,
+    wasm: (scope, { allocPage }) => [
+      [ Opcodes.local_get, 0 ],
+      ...number(128, Valtype.i32),
+      [ Opcodes.i32_mul ],
+      ...number(4, Valtype.i32),
+      [ Opcodes.i32_add ],
+      ...number(allocPage(scope, 'error lut'), Valtype.i32),
+      [ Opcodes.i32_add ],
+    ],
+    table: true
+  };
+
   PrecompiledBuiltins.BuiltinFuncs.call(this);
 };

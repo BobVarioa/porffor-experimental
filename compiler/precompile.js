@@ -154,11 +154,13 @@ const compile = async (file, _funcs) => {
 
 
         if (y[0] === Opcodes.i32_const && n[0] === Opcodes.throw) {
+          // tag.idx === 0 during precompile, so we don't have to worry about literals
           const id = read_signedLEB128(y.slice(1));
           y.splice(0, 10, 'throw', exceptions[id].constructor, exceptions[id].message);
 
           // remove throw inst
           wasm.splice(i + 1, 1);
+          i--;
         }
       }
     };

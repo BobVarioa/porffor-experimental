@@ -47,7 +47,7 @@ const encodeNames = funcs => {
   ];
 };
 
-export default (funcs, globals, tags, pages, data, flags, noTreeshake = false) => {
+export default (funcs, globals, tags, pages, data, flags, exceptions, noTreeshake = false) => {
   const types = [], typeCache = {};
 
   const optLevel = parseInt(process.argv.find(x => x.startsWith('-O'))?.[2] ?? 1);
@@ -190,6 +190,39 @@ export default (funcs, globals, tags, pages, data, flags, noTreeshake = false) =
   }
   time('func lut');
 
+  if (pages.has('error lut')) {
+    const offset = pages.get('error lut').ind * pageSize;
+    if (data.addedErrorLut) {
+      // remove existing data
+      data = data.filter(x => x.page !== 'error lut');
+    }
+
+    // generate error lut data
+    const bytes = [];
+    for (let i = 0; i < exceptions.length; i++) {
+      const err = exceptions[i];
+      const constr = err.constructor;
+      const constrIdx = funcs.find(f => f.name === constr).index - importedFuncs.length;
+      const message = err.message;
+
+      bytes.push(...new Uint8Array(new Uint32Array([ constrIdx ]).buffer));
+
+      bytes.push(...new Uint8Array(new Int32Array([ message.length ]).buffer));
+
+      for (let i = 0; i < (128 - 4 - 4); i++) {
+        const c = message.charCodeAt(i);
+        bytes.push((c || 0) % 256);
+      }
+    }
+
+    data.push({
+      page: 'error lut',
+      bytes
+    });
+    data.addedErrorLut = true;
+  }
+  time('error lut');
+
   // specially optimized assembly for globals as this version is much (>5x) faster than traditional createSection()
   const globalsValues = Object.values(globals);
 
@@ -252,8 +285,8 @@ export default (funcs, globals, tags, pages, data, flags, noTreeshake = false) =
     encodeVector(tags.map(x => [ 0x00, getType(x.params, x.results) ]))
   );
 
-  // export first tag if used
-  if (tags.length !== 0) exports.unshift([ ...encodeString('0'), ExportDesc.tag, 0x00 ]);
+  // export tags if used
+  if (tags.length !== 0) exports.unshift([ ...encodeString('0'), ExportDesc.tag, 0x00 ], [ ...encodeString('1'), ExportDesc.tag, 0x01 ]);
   time('tag section');
 
   const exportSection = createSection(

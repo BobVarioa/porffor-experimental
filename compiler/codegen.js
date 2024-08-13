@@ -4581,7 +4581,7 @@ const generateLabel = (scope, decl) => {
 const generateThrow = (scope, decl) => {
   scope.throws = true;
 
-  const exceptionMode = Prefs.exceptionMode ?? 'lut';
+  const exceptionMode = Prefs.exceptionMode ?? 'partial_lut';
   if (exceptionMode === 'lut') {
     let message = decl.argument.value, constructor = null;
 
@@ -4677,6 +4677,61 @@ const generateThrow = (scope, decl) => {
       [ Opcodes.throw, tags[0].idx ]
     ];
   }
+
+  if (exceptionMode === 'partial_lut') {
+    let message = decl.argument.value, constructor = null;
+
+    // support `throw (new)? Error(...)`
+    if (!message && (decl.argument.type === 'NewExpression' || decl.argument.type === 'CallExpression')) {
+      constructor = decl.argument.callee.name;
+      message = decl.argument.arguments[0]?.value ?? '';
+    }
+
+    if (tags.length === 0) {
+      tags.push({
+        params: [ Valtype.i32 ],
+        results: [],
+        idx: tags.length
+      });
+      tags.push({
+        params: [ valtypeBinary, Valtype.i32 ],
+        results: [],
+        idx: tags.length
+      });
+    }
+
+    let exceptId = -1;
+    let internal = globalThis.precompile;
+    if (constructor && Object.hasOwn(builtinFuncs, constructor)) {
+      internal = true;
+    }
+
+    if (
+      // is this an internal error?
+      internal
+      // have we filled the table?
+      && exceptions.length < 512
+      // do we have a constructor and message?
+      && constructor && message
+    ) {
+      exceptId = exceptions.findIndex(x => x.constructor === constructor && x.message === message);
+      if (exceptId === -1) exceptId = exceptions.push({ constructor, message }) - 1;
+
+      scope.exceptions ??= [];
+      scope.exceptions.push(exceptId);
+
+      return [
+        ...number(exceptId, Valtype.i32),
+        [ Opcodes.throw, tags[0].idx ]
+      ]
+    }
+
+    return [
+      ...generate(scope, decl.argument),
+      ...getNodeType(scope, decl.argument),
+      [ Opcodes.throw, tags[1].idx ]
+    ];
+  }
 };
 
 const generateTry = (scope, decl) => {
@@ -4693,15 +4748,59 @@ const generateTry = (scope, decl) => {
   out.push(...generate(scope, decl.block));
   out.push(...finalizer);
 
-  if (decl.handler) {
-    // todo: allow catching error values
-    // todo: when we can do that, allow destructuring error values
+  if (decl.handler && decl.handler.param) {
     depth.pop();
     depth.push('catch');
 
-    out.push([ Opcodes.catch_all ]);
-    out.push(...generate(scope, decl.handler.body));
-    out.push(...finalizer);
+    const catchLocal = allocVar(scope, '#catch_error');
+    const setCatchVar = generateVarDstr(scope, 'var', decl.handler.param, {
+      type: 'Identifier',
+      name: '#catch_error'
+    });
+    const handler = generate(scope, decl.handler.body);
+
+    const errorIdx = localTmp(scope, '#error_idx', Valtype.i32);
+    const errorFuncIdx = localTmp(scope, '#error_func_idx', Valtype.i32);
+
+    out.push(
+      [ Opcodes.catch, tags[0].idx ],
+        [ Opcodes.local_tee, errorIdx ],
+        [ Opcodes.call, includeBuiltin(scope, '__Porffor_errorLut_getConstr').index ],
+        [ Opcodes.local_tee, errorFuncIdx ],
+
+        Opcodes.i32_from,
+        ...number(TYPES.function, Valtype.i32),
+        // this as undefined because we dont use it in any internal error
+        ...number(UNDEFINED),
+        ...number(TYPES.undefined, Valtype.i32),
+        [ Opcodes.local_get, errorIdx ],
+        [ Opcodes.call, includeBuiltin(scope, '__Porffor_errorLut_getMessage').index ],
+        Opcodes.i32_from,
+        ...number(TYPES.bytestring, Valtype.i32),
+        [ Opcodes.local_get, errorFuncIdx ],
+        [ Opcodes.call_indirect, 3 /* new.target + this + message */, 0 ],
+
+        [ Opcodes.local_set, catchLocal + 1 ],
+        [ Opcodes.local_set, catchLocal ],
+        ...setCatchVar,
+        ...handler,
+        ...finalizer,
+      [ Opcodes.catch, tags[1].idx ],
+        [ Opcodes.local_set, catchLocal + 1 ],
+        [ Opcodes.local_set, catchLocal ],
+        ...setCatchVar,
+        ...handler,
+        ...finalizer,
+    );
+  } else if (decl.handler) {
+    depth.pop();
+    depth.push('catch');
+    const handler = generate(scope, decl.handler.body);
+    out.push(
+      [ Opcodes.catch_all ],
+        ...handler,
+        ...finalizer,
+    );
   }
 
   out.push([ Opcodes.end ]);
@@ -5284,7 +5383,7 @@ const generateMember = (scope, decl, _global, _name, _objectWasm = undefined) =>
   }
 
   // todo: generate this array procedurally during builtinFuncs creation
-  if (['size', 'description', 'byteLength', 'byteOffset', 'buffer', 'detached', 'resizable', 'growable', 'maxByteLength'].includes(decl.property.name)) {
+  if (['size', 'description', 'byteLength', 'byteOffset', 'buffer', 'detached', 'resizable', 'growable', 'maxByteLength', 'name', 'message'].includes(decl.property.name)) {
     // todo: support optional
     const bc = {};
     const cands = Object.keys(builtinFuncs).filter(x => x.startsWith('__') && x.endsWith('_prototype_' + decl.property.name + '$get'));
@@ -6272,6 +6371,12 @@ export default program => {
   if (Prefs.astLog) console.log(JSON.stringify(program.body.body, null, 2));
 
   const [ main ] = generateFunc({}, program);
+
+  if (!globalThis.precompile && pages.has('error lut')) {
+    for (const err of exceptions) {
+      includeBuiltin(main, err.constructor);
+    }
+  }
 
   // if wanted and blank main func and other exports, remove it
   if (Prefs.rmBlankMain && main.wasm.length === 0 && funcs.some(x => x.export)) funcs.splice(main.index - importedFuncs.length, 1);
